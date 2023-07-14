@@ -1,6 +1,5 @@
 {
   "name": "effect-playground",
-  "module": "index.ts",
   "type": "module",
   "devDependencies": {
     "bun-types": "latest"
