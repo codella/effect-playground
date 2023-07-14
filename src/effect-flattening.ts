@@ -10,7 +10,7 @@ const resultingEffect: Effect.Effect<R1 | R2, E1 | E2, [A1, A2]> = Effect.all([
 ]);
 
 /*
- * Defining sutypes used above
+ * Defining types used above
  */
 
 type R1 = { _requirement: unknown };
