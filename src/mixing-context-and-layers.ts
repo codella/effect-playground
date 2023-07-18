@@ -48,9 +48,10 @@ const context = Context.empty().pipe(
   Context.add(ServiceA, ServiceA.of(serviceAImpl))
 );
 
-const ServiceBLive = Layer.succeed(ServiceB, ServiceB.of(serviceBImpl));
-const ServiceCLive = Layer.succeed(ServiceC, ServiceC.of(serviceCImpl));
-const ServiceBCLive = Layer.merge(ServiceBLive, ServiceCLive);
+const ServiceBCLive = Layer.merge(
+  Layer.succeed(ServiceB, ServiceB.of(serviceBImpl)),
+  Layer.succeed(ServiceC, ServiceC.of(serviceCImpl))
+);
 const ServiceDLive = Layer.succeed(ServiceD, ServiceD.of(serviceDImpl));
 
 const program = Effect.all([ServiceA, ServiceB, ServiceC, ServiceD]).pipe(
