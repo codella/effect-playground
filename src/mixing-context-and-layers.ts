@@ -40,11 +40,21 @@ const serviceDImpl: ServiceD = {
 };
 //////////////
 
+/// ServiceE ///
+interface ServiceE {
+  readonly doE: () => void;
+}
+const ServiceE = Context.Tag<ServiceE>();
+const serviceEImpl: ServiceE = {
+  doE: () => console.log("Using ServiceE"),
+};
+//////////////
+
 ///////////////////////
 // Interesgint part! //
 ///////////////////////
 
-const context = Context.empty().pipe(
+const contextA = Context.empty().pipe(
   Context.add(ServiceA, ServiceA.of(serviceAImpl))
 );
 
@@ -54,29 +64,38 @@ const ServiceBCLive = Layer.merge(
 );
 const ServiceDLive = Layer.succeed(ServiceD, ServiceD.of(serviceDImpl));
 
-const program = Effect.all([ServiceA, ServiceB, ServiceC, ServiceD]).pipe(
-  Effect.flatMap(([a, b, c, d]) =>
+const program = Effect.all([
+  ServiceA,
+  ServiceB,
+  ServiceC,
+  ServiceD,
+  ServiceE,
+]).pipe(
+  Effect.flatMap(([a, b, c, d, e]) =>
     Effect.sync(() => {
       a.doA();
       b.doB();
       c.doC();
       d.doD();
+      e.doE();
       return "success!";
     })
   )
 );
 
 const provided = program.pipe(
-  Effect.provideSomeContext(context), // Context, providing only ServiceA
+  Effect.provideSomeContext(contextA), // Context, providing only ServiceA
   Effect.provideSomeLayer(ServiceBCLive), // Merged layers, providing ServiceB and ServiceC
-  Effect.provideSomeLayer(ServiceDLive) // Layer, providing Service D
+  Effect.provideSomeLayer(ServiceDLive), // Layer, providing Service D
+  Effect.provideService(ServiceE, ServiceE.of(serviceEImpl)) // Service, providing only ServiceE
 );
 
-Effect.runPromise(provided);
+Effect.runSync(provided);
 
 /* Output:
   Using ServiceA
   Using ServiceB
   Using ServiceC
   Using ServiceD
+  Using ServiceE
 */
