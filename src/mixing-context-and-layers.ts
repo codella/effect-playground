@@ -58,7 +58,7 @@ const program = Effect.all([ServiceA, ServiceB, ServiceC, ServiceD]).pipe(
 );
 
 const provided = program.pipe(
-  Effect.provideSomeContext(context),
-  Effect.provideSomeLayer(ServiceBCLive),
-  Effect.provideSomeLayer(ServiceDLive)
+  Effect.provideSomeContext(context), // Context, providing only ServiceA
+  Effect.provideSomeLayer(ServiceBCLive), // Merged layers, providing ServiceB and ServiceC
+  Effect.provideSomeLayer(ServiceDLive) // Layer, providing Service D
 );
