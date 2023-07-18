@@ -2,41 +2,41 @@ import { Effect, Context, Layer } from "effect";
 
 /// ServiceA ///
 interface ServiceA {
-  readonly doA: (input: string) => undefined;
+  readonly doA: () => void;
 }
 const ServiceA = Context.Tag<ServiceA>();
 const serviceAImpl: ServiceA = {
-  doA: (_) => {},
+  doA: () => console.log("Using ServiceA"),
 };
 //////////////
 
 /// ServiceB ///
 interface ServiceB {
-  readonly doB: (input: string) => undefined;
+  readonly doB: () => void;
 }
 const ServiceB = Context.Tag<ServiceB>();
 const serviceBImpl: ServiceB = {
-  doB: (_) => {},
+  doB: () => console.log("Using ServiceB"),
 };
 /////////////////
 
 /// ServiceC ///
 interface ServiceC {
-  readonly doC: (input: string) => undefined;
+  readonly doC: () => void;
 }
 const ServiceC = Context.Tag<ServiceC>();
 const serviceCImpl: ServiceC = {
-  doC: (_) => {},
+  doC: () => console.log("Using ServiceC"),
 };
 //////////////
 
 /// ServiceD ///
 interface ServiceD {
-  readonly doD: (input: string) => undefined;
+  readonly doD: () => void;
 }
 const ServiceD = Context.Tag<ServiceD>();
 const serviceDImpl: ServiceD = {
-  doD: (_) => {},
+  doD: () => console.log("Using ServiceD"),
 };
 //////////////
 
@@ -54,7 +54,15 @@ const ServiceBCLive = Layer.merge(ServiceBLive, ServiceCLive);
 const ServiceDLive = Layer.succeed(ServiceD, ServiceD.of(serviceDImpl));
 
 const program = Effect.all([ServiceA, ServiceB, ServiceC, ServiceD]).pipe(
-  Effect.flatMap(([_a, _b, _c, _d]) => Effect.succeed("success!"))
+  Effect.flatMap(([a, b, c, d]) =>
+    Effect.sync(() => {
+      a.doA();
+      b.doB();
+      c.doC();
+      d.doD();
+      return "success!";
+    })
+  )
 );
 
 const provided = program.pipe(
@@ -62,3 +70,5 @@ const provided = program.pipe(
   Effect.provideSomeLayer(ServiceBCLive), // Merged layers, providing ServiceB and ServiceC
   Effect.provideSomeLayer(ServiceDLive) // Layer, providing Service D
 );
+
+Effect.runPromise(provided);
