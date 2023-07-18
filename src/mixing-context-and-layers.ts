@@ -72,3 +72,10 @@ const provided = program.pipe(
 );
 
 Effect.runPromise(provided);
+
+/* Output:
+  Using ServiceA
+  Using ServiceB
+  Using ServiceC
+  Using ServiceD
+*/
