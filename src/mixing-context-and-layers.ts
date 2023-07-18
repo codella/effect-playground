@@ -54,15 +54,15 @@ const serviceEImpl: ServiceE = {
 // Interesgint part! //
 ///////////////////////
 
-const contextA = Context.empty().pipe(
-  Context.add(ServiceA, ServiceA.of(serviceAImpl))
+const contextB = Context.empty().pipe(
+  Context.add(ServiceB, ServiceB.of(serviceBImpl))
 );
 
-const ServiceBCLive = Layer.merge(
-  Layer.succeed(ServiceB, ServiceB.of(serviceBImpl)),
-  Layer.succeed(ServiceC, ServiceC.of(serviceCImpl))
+const ServiceCDLive = Layer.merge(
+  Layer.succeed(ServiceC, ServiceC.of(serviceCImpl)),
+  Layer.succeed(ServiceD, ServiceD.of(serviceDImpl))
 );
-const ServiceDLive = Layer.succeed(ServiceD, ServiceD.of(serviceDImpl));
+const ServiceELive = Layer.succeed(ServiceE, ServiceE.of(serviceEImpl));
 
 const program = Effect.all([
   ServiceA,
@@ -84,10 +84,10 @@ const program = Effect.all([
 );
 
 const provided = program.pipe(
-  Effect.provideSomeContext(contextA), // Context, providing only ServiceA
-  Effect.provideSomeLayer(ServiceBCLive), // Merged layers, providing ServiceB and ServiceC
-  Effect.provideSomeLayer(ServiceDLive), // Layer, providing Service D
-  Effect.provideService(ServiceE, ServiceE.of(serviceEImpl)) // Service, providing only ServiceE
+  Effect.provideService(ServiceA, ServiceA.of(serviceAImpl)), // Providing ServiceA directly
+  Effect.provideSomeContext(contextB), // Providing ServiceB via Context instance
+  Effect.provideSomeLayer(ServiceCDLive), // Providing ServiceC and ServiceD via merged layers
+  Effect.provideSomeLayer(ServiceELive) // Providing ServiceE via layer
 );
 
 Effect.runSync(provided);
