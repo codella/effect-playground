@@ -13,4 +13,4 @@ import { List } from "effect";
  * @since 1.0.0
  */
 
-List.flatMap;
+List.last;
