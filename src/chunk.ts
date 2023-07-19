@@ -6,6 +6,6 @@ import { Chunk } from "effect";
  * safe interface to the underlying elements, and they become lazy on
  * operations that would be costly with arrays, such as repeated concatenation.
  * Like lists and arrays, Chunk is an ordered collection.
-/*
+ */
 
-Chunk.of
+Chunk.of;
