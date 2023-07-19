@@ -1,4 +1,4 @@
-import { Chunk, pipe } from 'effect';
+import { Chunk, Option, pipe } from 'effect';
 
 /*
  * A Chunk<A> represents a chunk of values of type A.
@@ -8,18 +8,85 @@ import { Chunk, pipe } from 'effect';
  * Like lists and arrays, Chunk is an ordered collection.
  */
 
-// Chunk.append
-const chunk1 = pipe(
-  Chunk.empty(),
-  Chunk.append('another')
+/************************************************
+ * Chunk.of
+ */
+pipe(Chunk.of(1), printChunk);
+
+/************************************************
+ * Chunk.make
+ */
+pipe(Chunk.make(1, 2, 3), printChunk);
+
+/************************************************
+ * Chunk.append
+ */
+pipe(Chunk.of('one'), Chunk.append('another'), printChunk);
+
+/************************************************
+ * Chunk.appendAll
+ */
+pipe(
+  Chunk.of(0),
+  Chunk.appendAll(Chunk.make(1, 2, 3)),
+  printChunk
 );
-printChunk(chunk1);
 
-// Chunk.
-// const chunk2 = Chunk.empty()
+/************************************************
+ * Chunk.appendAllNonEmpty
+ */
+pipe(
+  Chunk.of(1),
+  Chunk.appendAllNonEmpty(Chunk.empty()),
+  printChunk
+);
+pipe(
+  Chunk.empty(),
+  Chunk.appendAllNonEmpty(Chunk.of(1)),
+  printChunk
+);
 
-/* utility functions */
+// -- This won't compile (by design)
+// pipe(
+//   Chunk.empty(),
+//   Chunk.appendAllNonEmpty(Chunk.empty()),
+//   printChunk
+// );
 
-function printChunk(chunk: Chunk.Chunk<unknown>) {
-  console.log(Chunk.toReadonlyArray(chunk));
+/************************************************
+ * Chunk.appendAllNonEmpty
+ */
+pipe(
+  Chunk.make(1, 2, 3, 4, 5, 6),
+  Chunk.chunksOf(3),
+  printChunk
+);
+
+/************************************************
+ * Chunk.compact
+ */
+pipe(
+  Chunk.make(Option.none(), Option.some(1), Option.none()),
+  Chunk.compact,
+  printChunk
+);
+
+/************************************************
+ * Chunk.contains
+ */
+pipe(Chunk.make(1, 2, 3), Chunk.contains(2), console.log);
+
+/*
+ * Utility function(s)
+ */
+
+function printChunk<A>(chunk: Chunk.Chunk<A>) {
+  pipe(
+    chunk,
+    Chunk.map((el) =>
+      Chunk.isChunk(el) ? Chunk.toReadonlyArray(el) : el
+    ),
+    Chunk.toReadonlyArray,
+    console.log
+  );
 }
