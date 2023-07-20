@@ -16,10 +16,7 @@ pipe(Chunk.of(1), printChunk('Chunk.of'));
 /************************************************
  * Chunk.make
  */
-pipe(
-  Chunk.make(1, 2, 3),
-  printChunk('Chunk.make')
-);
+pipe(Chunk.make(1, 2, 3), printChunk('Chunk.make'));
 
 /************************************************
  * Chunk.append
@@ -73,11 +70,7 @@ pipe(
  * Chunk.compact
  */
 pipe(
-  Chunk.make(
-    Option.none(),
-    Option.some(1),
-    Option.none()
-  ),
+  Chunk.make(Option.none(), Option.some(1), Option.none()),
   Chunk.compact,
   printChunk('Chunk.compact')
 );
@@ -95,7 +88,12 @@ pipe(
  * Utility function(s)
  */
 
-function printChunk(example: string) {
+interface Printer {
+  <A>(chunk: Chunk.Chunk<A>): void;
+  <A>(data: A): void;
+}
+
+function printChunk(example: string): Printer {
   return function <A>(chunk: Chunk.Chunk<A>) {
     console.log(
       '************************************************'
@@ -104,9 +102,7 @@ function printChunk(example: string) {
     pipe(
       chunk,
       Chunk.map((el) =>
-        Chunk.isChunk(el)
-          ? Chunk.toReadonlyArray(el)
-          : el
+        Chunk.isChunk(el) ? Chunk.toReadonlyArray(el) : el
       ),
       Chunk.toReadonlyArray,
       console.log
