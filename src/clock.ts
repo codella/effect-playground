@@ -1,9 +1,9 @@
-import { Effect as T, Clock } from "effect";
+import { Effect, Clock } from 'effect';
 
 Clock.Clock.pipe(
-  T.flatMap((clock) => clock.currentTimeMillis),
-  T.flatMap((millis) => T.log(millis.toString())),
-  T.provideService(Clock.Clock, Clock.make()),
-  T.repeatN(5),
-  T.runPromise
+  Effect.flatMap((clock) => clock.currentTimeMillis),
+  Effect.flatMap((millis) => Effect.log(millis.toString())),
+  Effect.provideService(Clock.Clock, Clock.make()),
+  Effect.repeatN(5),
+  Effect.runPromise
 );
