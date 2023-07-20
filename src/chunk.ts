@@ -11,12 +11,12 @@ import { Chunk, Option, pipe } from 'effect';
 /************************************************
  * Chunk.of
  */
-pipe(Chunk.of(1), printChunk('Chunk.of'));
+pipe(Chunk.of(1), print('Chunk.of'));
 
 /************************************************
  * Chunk.make
  */
-pipe(Chunk.make(1, 2, 3), printChunk('Chunk.make'));
+pipe(Chunk.make(1, 2, 3), print('Chunk.make'));
 
 /************************************************
  * Chunk.append
@@ -24,7 +24,7 @@ pipe(Chunk.make(1, 2, 3), printChunk('Chunk.make'));
 pipe(
   Chunk.of('one'),
   Chunk.append('another'),
-  printChunk('Chunk.append')
+  print('Chunk.append')
 );
 
 /************************************************
@@ -33,7 +33,7 @@ pipe(
 pipe(
   Chunk.of(0),
   Chunk.appendAll(Chunk.make(1, 2, 3)),
-  printChunk('Chunk.appendAll')
+  print('Chunk.appendAll')
 );
 
 /************************************************
@@ -42,12 +42,12 @@ pipe(
 pipe(
   Chunk.of(1),
   Chunk.appendAllNonEmpty(Chunk.empty()),
-  printChunk('Chunk.appendAllNonEmpty (1)')
+  print('Chunk.appendAllNonEmpty (1)')
 );
 pipe(
   Chunk.empty(),
   Chunk.appendAllNonEmpty(Chunk.of(1)),
-  printChunk('Chunk.appendAllNonEmpty (2)')
+  print('Chunk.appendAllNonEmpty (2)')
 );
 
 // -- This won't compile (by design)
@@ -63,7 +63,7 @@ pipe(
 pipe(
   Chunk.make(1, 2, 3, 4, 5),
   Chunk.chunksOf(3),
-  printChunk('Chunk.chunksOf')
+  print('Chunk.chunksOf')
 );
 
 /************************************************
@@ -72,7 +72,7 @@ pipe(
 pipe(
   Chunk.make(Option.none(), Option.some(1), Option.none()),
   Chunk.compact,
-  printChunk('Chunk.compact')
+  print('Chunk.compact')
 );
 
 /************************************************
@@ -90,34 +90,29 @@ pipe(
 
 interface Printer {
   <A>(chunk: Chunk.Chunk<A>): void;
-  <A>(...data: A[]): void;
+  <A>(data: A): void;
 }
 
-function printChunk(example: string): Printer {
-  return function <A>(chunk: Chunk.Chunk<A>) {
+function print(example: string): Printer {
+  return function (data: unknown) {
     console.log(
       '************************************************'
     );
     console.log('* Output of: `' + example + '`');
-    pipe(
-      chunk,
-      Chunk.map((el) =>
-        Chunk.isChunk(el) ? Chunk.toReadonlyArray(el) : el
-      ),
-      Chunk.toReadonlyArray,
-      console.log
-    );
-    console.log();
-  };
-}
 
-function print(example: string) {
-  return function (...data: any[]) {
-    console.log(
-      '************************************************'
-    );
-    console.log('* Output of: `' + example + '`');
-    console.log(...data);
+    if (Chunk.isChunk(data)) {
+      pipe(
+        data,
+        Chunk.map((el) =>
+          Chunk.isChunk(el) ? Chunk.toReadonlyArray(el) : el
+        ),
+        Chunk.toReadonlyArray,
+        console.log
+      );
+    } else {
+      console.log(data);
+    }
+
     console.log();
   };
 }
