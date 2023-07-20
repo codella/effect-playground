@@ -90,7 +90,7 @@ pipe(
 
 interface Printer {
   <A>(chunk: Chunk.Chunk<A>): void;
-  <A>(data: A): void;
+  <A>(...data: A[]): void;
 }
 
 function printChunk(example: string): Printer {
