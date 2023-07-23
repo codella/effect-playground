@@ -1,37 +1,67 @@
-import { Effect, Context, Layer } from "effect";
+import { Effect, Context, Layer } from 'effect';
 
 interface MyResource {
-  perform(): void
+  data(): string;
 }
+const myResourceImpl: MyResource = {
+  data: () => 'data'
+};
 
-const acquire = Effect.tryPromise({
-  try: () => Promise.resolve({} as MyResource),
-  catch: () => new Error("ouch")
-}).pipe(Effect.tap(() => Effect.log("acquired")))
+const acquire = Effect.promise(() =>
+  Promise.resolve(myResourceImpl)
+).pipe(
+  Effect.tap(() => Effect.log('MyResource acquired.'))
+);
 
-const release = () => Effect.promise(() => Promise.resolve()).pipe(Effect.tap(() => Effect.log("released")))
+const release = (_res: MyResource) =>
+  Effect.promise(() => Promise.resolve()).pipe(
+    Effect.tap(() => Effect.log('MyResource released.'))
+  );
 
-const ar = Effect.acquireRelease(acquire, release);
+const myManagedResource = Effect.acquireRelease(
+  acquire,
+  release
+);
 
 //////
 
-// Define the interface for the MeasuringCup service
-export interface MyScopedLayer {
-  service(): Effect.Effect<never, never, number>
+export interface MyLayer {
+  service(): Effect.Effect<never, never, string>;
 }
-   
-// Create a tag for the MeasuringCup service
-export const MyScopedLayer = Context.Tag<MyScopedLayer>()
+export const MyLayer = Context.Tag<MyLayer>();
 
-const scoped = ar.pipe(Effect.flatMap(myres => Effect.sync(() => ({
-  service() {
-    return Effect.succeed(4)
-  }
-}))))
+const scoped = myManagedResource.pipe(
+  Effect.flatMap((myResource) =>
+    Effect.sync(() => ({
+      service() {
+        return Effect.succeed(
+          `LiveLayer with data: ${myResource.data()}`
+        );
+      }
+    }))
+  )
+);
 
-const live = Layer.scoped(MyScopedLayer, scoped)
+const live = Layer.scoped(MyLayer, scoped);
 
-const program = MyScopedLayer.pipe(Effect.flatMap(layer => layer.service()))
-const anotherProgram = MyScopedLayer.pipe(Effect.flatMap(layer => layer.service()))
+const program = MyLayer.pipe(
+  Effect.flatMap((layer) => layer.service()),
+  Effect.flatMap((_) => Effect.log(_))
+);
+const anotherProgram = MyLayer.pipe(
+  Effect.flatMap((layer) => layer.service()),
+  Effect.flatMap((_) => Effect.log(_))
+);
 
-Effect.runPromise(program.pipe(Effect.flatMap(() => anotherProgram), Effect.provideLayer(live)))
+// Effect.runPromise(
+//   program.pipe(
+//     Effect.flatMap(() => anotherProgram),
+//     Effect.provideLayer(live)
+//   )
+// );
+
+Effect.runPromise(
+  Effect.all([program, anotherProgram]).pipe(
+    Effect.provideLayer(live)
+  )
+);
