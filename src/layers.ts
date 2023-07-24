@@ -1,5 +1,8 @@
 import { Effect, Context, Layer } from 'effect';
 
+//
+// Defining a resource and giving an implementation
+//
 interface MyResource {
   data(): string;
 }
@@ -7,6 +10,11 @@ const myResourceImpl: MyResource = {
   data: () => 'data'
 };
 
+//
+// Defining Effects to acquire and release a
+// resource, in order to define an Effect that
+// provides a scoped resource.
+//
 const acquire = Effect.promise(() =>
   Promise.resolve(myResourceImpl)
 ).pipe(
@@ -18,7 +26,7 @@ const release = (_res: MyResource) =>
     Effect.tap(() => Effect.log('MyResource released.'))
   );
 
-const myManagedResource = Effect.acquireRelease(
+const myScopedResource = Effect.acquireRelease(
   acquire,
   release
 );
@@ -30,7 +38,7 @@ export interface MyLayer {
 }
 export const MyLayer = Context.Tag<MyLayer>();
 
-const scoped = myManagedResource.pipe(
+const scoped = myScopedResource.pipe(
   Effect.flatMap((myResource) =>
     Effect.sync(() => ({
       service() {
