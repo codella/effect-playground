@@ -38,19 +38,22 @@ export interface MyLayer {
 }
 export const MyLayer = Context.Tag<MyLayer>();
 
-const scoped = myScopedResource.pipe(
+const scopedEffect = myScopedResource.pipe(
   Effect.flatMap((myResource) =>
-    Effect.sync(() => ({
-      service() {
-        return Effect.succeed(
-          `LiveLayer with data: ${myResource.data()}`
-        );
-      }
-    }))
+    Effect.sync(
+      () =>
+        ({
+          service() {
+            return Effect.succeed(
+              `LiveLayer with data: ${myResource.data()}`
+            );
+          }
+        } as MyLayer)
+    )
   )
 );
 
-const live = Layer.scoped(MyLayer, scoped);
+const live = Layer.scoped(MyLayer, scopedEffect);
 
 const program = MyLayer.pipe(
   Effect.flatMap((layer) => layer.service()),
