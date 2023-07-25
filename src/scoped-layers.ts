@@ -15,28 +15,29 @@ const myResourceImpl: MyResource = {
 // resource, in order to define an Effect that
 // provides a scoped resource.
 //
-const acquire = Effect.promise(() =>
+const acquireMyResource = Effect.promise(() =>
   Promise.resolve(myResourceImpl)
 ).pipe(
   Effect.tap(() => Effect.log('MyResource acquired.'))
 );
 
-const release = (_res: MyResource) =>
+const releaseMyResource = (_res: MyResource) =>
   Effect.promise(() => Promise.resolve()).pipe(
     Effect.tap(() => Effect.log('MyResource released.'))
   );
 
 const myScopedResource = Effect.acquireRelease(
-  acquire,
-  release
+  acquireMyResource,
+  releaseMyResource
 );
 
-//////
-
-export interface MyLayer {
+//
+// Defining a service and its tag
+//
+export interface MyService {
   service(): Effect.Effect<never, never, string>;
 }
-export const MyLayer = Context.Tag<MyLayer>();
+export const MyService = Context.Tag<MyService>();
 
 const scopedEffect = myScopedResource.pipe(
   Effect.flatMap((myResource) =>
@@ -48,18 +49,21 @@ const scopedEffect = myScopedResource.pipe(
               `LiveLayer with data: ${myResource.data()}`
             );
           }
-        } as MyLayer)
+        } as MyService)
     )
   )
 );
 
-const live = Layer.scoped(MyLayer, scopedEffect);
+const scopedServiceLive = Layer.scoped(
+  MyService,
+  scopedEffect
+);
 
-const program = MyLayer.pipe(
+const program = MyService.pipe(
   Effect.flatMap((layer) => layer.service()),
   Effect.flatMap((_) => Effect.log(_))
 );
-const anotherProgram = MyLayer.pipe(
+const anotherProgram = MyService.pipe(
   Effect.flatMap((layer) => layer.service()),
   Effect.flatMap((_) => Effect.log(_))
 );
@@ -73,6 +77,6 @@ const anotherProgram = MyLayer.pipe(
 
 Effect.runPromise(
   Effect.all([program, anotherProgram]).pipe(
-    Effect.provideLayer(live)
+    Effect.provideLayer(scopedServiceLive)
   )
 );
