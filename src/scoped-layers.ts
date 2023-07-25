@@ -71,7 +71,7 @@ const anotherProgram = MyService.pipe(
 // Effect.runPromise(
 //   program.pipe(
 //     Effect.flatMap(() => anotherProgram),
-//     Effect.provideLayer(live)
+//     Effect.provideLayer(scopedServiceLive)
 //   )
 // );
 
