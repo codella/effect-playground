@@ -13,7 +13,7 @@
     "@effect/data": "^0.17.1",
     "@effect/match": "^0.32.0",
     "@effect/stream": "^0.34.0",
-    "@effect/stm": "0.22.0",
+    "@effect/stm": "^0.22.0",
     "@effect/schema": "^0.33.1"
   }
 }
