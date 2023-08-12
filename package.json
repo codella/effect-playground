@@ -8,6 +8,12 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "effect": "^2.0.0-next.19"
+    "effect": "^2.0.0-next.24",
+    "@effect/io": "^0.38.0",
+    "@effect/data": "^0.17.1",
+    "@effect/match": "^0.32.0",
+    "@effect/stream": "^0.34.0",
+    "@effect/stm": "0.22.0",
+    "@effect/schema": "^0.33.1"
   }
 }
